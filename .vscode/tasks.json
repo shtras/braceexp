@@ -1,0 +1,72 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "make -j$(nproc)",
+            "options": {
+                "cwd": "build"
+            },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                    "relative",
+                    "/"
+                ]
+            }
+        },
+        {
+            "label": "Cmake Debug",
+            "type": "shell",
+            "group": "build",
+            "command": "cmake -DENABLE_TESTS=1 -DCMAKE_BUILD_TYPE=Debug ..",
+            "options": {
+                "cwd": "build"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cmake Release",
+            "type": "shell",
+            "group": "build",
+            "command": "cmake -DCMAKE_BUILD_TYPE=Release ..",
+            "options": {
+                "cwd": "build"
+            }
+        },
+        {
+            "label": "Run tests",
+            "type": "shell",
+            "group": "build",
+            "command": "ctest",
+            "options": {
+                "cwd": "build"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make clean",
+            "options": {
+                "cwd": "build"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "full clean",
+            "type": "shell",
+            "group": "build",
+            "command": "rm -rf build/* bin/*",
+            "problemMatcher": []
+        }
+    ]
+}
