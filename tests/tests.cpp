@@ -82,3 +82,61 @@ TEST_CASE("Bad cases", "[parser]")
         REQUIRE_FALSE(p.Parse());
     }
 }
+
+TEST_CASE("Exoansion", "[main]")
+{
+    SECTION("{A,B,C}")
+    {
+        std::string s = "{A,B,C}";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "A B C\n");
+    }
+    SECTION("{A,B}{C,D}")
+    {
+        std::string s = "{A,B}{C,D}";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "AC AD BC BD\n");
+    }
+    SECTION("{A,B{C,D}}")
+    {
+        std::string s = "{A,B{C,D}}";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "A BC BD\n");
+    }
+    SECTION("{ABC}")
+    {
+        std::string s = "{ABC}";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "ABC\n");
+    }
+    SECTION("ABC")
+    {
+        std::string s = "ABC";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "ABC\n");
+    }
+    SECTION("A{B,C}")
+    {
+        std::string s = "A{B,C}";
+        Parser p(s);
+        REQUIRE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "AB AC\n");
+    }
+}

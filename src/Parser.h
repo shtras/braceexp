@@ -2,6 +2,7 @@
 
 #include <string>
 #include <list>
+#include <ostream>
 
 /*
 L: [a-zA-Z]|{A}
@@ -72,9 +73,12 @@ class Parser
 public:
     Parser(std::string& s);
     bool Parse();
+    void Flush(std::ostream& s);
 
 private:
     Buffer b_;
+    std::list<std::string> res_;
+    bool error_ = false;
 };
 
 bool test3();

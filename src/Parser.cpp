@@ -155,16 +155,24 @@ Parser::Parser(std::string& s)
 
 bool Parser::Parse()
 {
-    B l(b_);
-    auto res = l.Parse();
-    bool error = l.HasError() || !b_.Eof();
-    if (!error) {
-        for (auto& s : res) {
-            std::cout << s << " ";
+    B b(b_);
+    res_ = b.Parse();
+    error_ = b.HasError() || !b_.Eof();
+    return !error_;
+}
+
+void Parser::Flush(std::ostream& s)
+{
+    if (!error_) {
+        size_t idx = 0;
+        for (auto& t : res_) {
+            s << t;
+            if (++idx < res_.size()) {
+                s << " ";
+            }
         }
-        std::cout << "\n";
     }
-    return !error;
+    s << "\n";
 }
 
 bool test3()
@@ -172,5 +180,6 @@ bool test3()
     std::string s{"B{C,D}"};
     Parser p(s);
     bool res = p.Parse();
+    p.Flush(std::cout);
     return res;
 }
