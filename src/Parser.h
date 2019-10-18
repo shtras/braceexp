@@ -29,6 +29,7 @@ class L : public Token
 {
 public:
     L(Utils::Buffer& b);
+
     std::list<std::string> Parse();
 
 private:

@@ -68,6 +68,18 @@ TEST_CASE("Expanding valid strings", "[main]")
         p.Flush(ss);
         REQUIRE(ss.str() == "AB AC\n");
     }
+    SECTION("{A,B}C")
+    {
+        REQUIRE(p.Parse("{A,B}C"));
+        p.Flush(ss);
+        REQUIRE(ss.str() == "AC BC\n");
+    }
+    SECTION("{A,B}C{D,E}")
+    {
+        REQUIRE(p.Parse("{A,B}C{D,E}"));
+        p.Flush(ss);
+        REQUIRE(ss.str() == "ACD ACE BCD BCE\n");
+    }
 }
 
 TEST_CASE("Expanding invalid strings", "[main]")

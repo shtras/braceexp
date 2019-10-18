@@ -31,6 +31,7 @@ std::list<std::string> L::Parse()
                 error_ = true;
             }
             b_.Skip();
+            break;
         } else if (std::isalpha(b_.Peek())) {
             if (res.size() == 0) {
                 res.emplace_back();
