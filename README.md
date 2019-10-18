@@ -30,6 +30,11 @@ echo "A{B,C}" | ../bin/braceexp
 ### On Linux/Unix based system:
 
 ```
+cd build
+ctest
+```
+or
+```
 cd run
 ../bin/unit_tests
 ../tests/test.sh
