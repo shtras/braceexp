@@ -3,7 +3,9 @@
 
 #include "Parser.h"
 
-TEST_CASE("Good cases", "[parser]")
+using BraceExpand::Parser;
+
+TEST_CASE("Parsing valid strings", "[parser]")
 {
     SECTION("{A,B,C}")
     {
@@ -43,7 +45,7 @@ TEST_CASE("Good cases", "[parser]")
     }
 }
 
-TEST_CASE("Bad cases", "[parser]")
+TEST_CASE("Parsing invalid strings", "[parser]")
 {
     SECTION("}ABC")
     {
@@ -83,7 +85,7 @@ TEST_CASE("Bad cases", "[parser]")
     }
 }
 
-TEST_CASE("Exoansion", "[main]")
+TEST_CASE("Expanding valid strings", "[main]")
 {
     SECTION("{A,B,C}")
     {
@@ -138,5 +140,63 @@ TEST_CASE("Exoansion", "[main]")
         std::stringstream ss;
         p.Flush(ss);
         REQUIRE(ss.str() == "AB AC\n");
+    }
+}
+
+TEST_CASE("Expanding invalid strings", "[main]")
+{
+    SECTION("}ABC")
+    {
+        std::string s = "}ABC";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
+    }
+    SECTION("{ABC")
+    {
+        std::string s = "{ABC";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
+    }
+    SECTION("}{")
+    {
+        std::string s = "}{";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
+    }
+    SECTION("{}")
+    {
+        std::string s = "{}";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
+    }
+    SECTION("A,B,C")
+    {
+        std::string s = "A,B,C";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
+    }
+    SECTION("{A,}")
+    {
+        std::string s = "{A,}";
+        Parser p(s);
+        REQUIRE_FALSE(p.Parse());
+        std::stringstream ss;
+        p.Flush(ss);
+        REQUIRE(ss.str() == "\n");
     }
 }

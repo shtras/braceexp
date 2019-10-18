@@ -4,45 +4,31 @@
 #include <list>
 #include <ostream>
 
+#include "Utils/Utils.h"
+
 /*
 L: [a-zA-Z]|{A}
 A: B,B,B
 B: LLL          --- multiply
 */
-
-bool isChar(char c);
-
-class Buffer
+namespace BraceExpand
 {
-public:
-    Buffer(std::string& s);
-    char Peek();
-    char Get();
-    void Skip(size_t n = 1);
-    bool Eof();
-    size_t Pos();
-
-private:
-    std::string_view s_;
-    size_t idx_ = 0;
-};
-
 class Token
 {
 public:
-    Token(Buffer& b);
+    Token(Utils::Buffer& b);
     virtual ~Token() = default;
     bool HasError();
 
 protected:
-    Buffer& b_;
+    Utils::Buffer& b_;
     bool error_ = false;
 };
 
 class L : public Token
 {
 public:
-    L(Buffer& b);
+    L(Utils::Buffer& b);
     std::list<std::string> Parse();
 
 private:
@@ -51,7 +37,7 @@ private:
 class B : public Token
 {
 public:
-    B(Buffer& b);
+    B(Utils::Buffer& b);
 
     std::list<std::string> Parse();
 
@@ -61,7 +47,7 @@ private:
 class A : public Token
 {
 public:
-    A(Buffer& b);
+    A(Utils::Buffer& b);
 
     std::list<std::string> Parse();
 
@@ -76,9 +62,8 @@ public:
     void Flush(std::ostream& s);
 
 private:
-    Buffer b_;
+    Utils::Buffer b_;
     std::list<std::string> res_;
     bool error_ = false;
 };
-
-bool test3();
+} // namespace BraceExpand

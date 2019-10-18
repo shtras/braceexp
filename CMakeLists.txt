@@ -43,8 +43,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DRELEASE -DNDEBUG")
 
 project(BraceExp)
 #set(CMAKE_VERBOSE_MAKEFILE TRUE)
-set(SOURCES Element.cpp Parser.cpp Utils/Utils.cpp)
-set(INCLUDES Element.h Parser.h Utils/Utils.h)
+set(SOURCES Parser.cpp Utils/Utils.cpp)
+set(INCLUDES Parser.h Utils/Utils.h)
 
 add_subdirectory(src)
 if (${ENABLE_TESTS})

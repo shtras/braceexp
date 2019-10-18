@@ -1,53 +1,8 @@
-#include <iostream>
 #include "Parser.h"
 
-bool isChar(char c)
+namespace BraceExpand
 {
-    if (c >= 'a' && c <= 'z') {
-        return true;
-    }
-    if (c >= 'A' && c <= 'Z') {
-        return true;
-    }
-    return false;
-}
-
-Buffer::Buffer(std::string& s)
-    : s_(s)
-{
-}
-
-char Buffer::Peek()
-{
-    if (Eof()) {
-        return '\n';
-    }
-    return s_[idx_];
-}
-
-char Buffer::Get()
-{
-    auto res = Peek();
-    Skip();
-    return res;
-}
-
-void Buffer::Skip(size_t n /*= 1*/)
-{
-    idx_ += n;
-}
-
-bool Buffer::Eof()
-{
-    return idx_ >= s_.size();
-}
-
-size_t Buffer::Pos()
-{
-    return idx_;
-}
-
-Token::Token(Buffer& b)
+Token::Token(Utils::Buffer& b)
     : b_(b)
 {
 }
@@ -57,7 +12,7 @@ bool Token::HasError()
     return error_;
 }
 
-L::L(Buffer& b)
+L::L(Utils::Buffer& b)
     : Token(b)
 {
 }
@@ -76,7 +31,7 @@ std::list<std::string> L::Parse()
                 error_ = true;
             }
             b_.Skip();
-        } else if (isChar(b_.Peek())) {
+        } else if (std::isalpha(b_.Peek())) {
             if (res.size() == 0) {
                 res.emplace_back();
             }
@@ -88,7 +43,7 @@ std::list<std::string> L::Parse()
     return res;
 }
 
-B::B(Buffer& b)
+B::B(Utils::Buffer& b)
     : Token(b)
 {
 }
@@ -120,7 +75,7 @@ std::list<std::string> B::Parse()
     return res;
 }
 
-A::A(Buffer& b)
+A::A(Utils::Buffer& b)
     : Token(b)
 {
 }
@@ -174,12 +129,4 @@ void Parser::Flush(std::ostream& s)
     }
     s << "\n";
 }
-
-bool test3()
-{
-    std::string s{"B{C,D}"};
-    Parser p(s);
-    bool res = p.Parse();
-    p.Flush(std::cout);
-    return res;
-}
+} // namespace BraceExpand
