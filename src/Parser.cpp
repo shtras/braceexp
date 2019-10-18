@@ -62,8 +62,8 @@ std::list<std::string> B::Parse()
         }
         std::list<std::string> res1;
         if (!res.empty()) {
-            for (auto& ls : res) {
-                for (auto& rs : right) {
+            for (const auto& ls : res) {
+                for (const auto& rs : right) {
                     res1.push_back(ls + rs);
                 }
             }
@@ -103,16 +103,12 @@ std::list<std::string> A::Parse()
     return res;
 }
 
-Parser::Parser(std::string& s)
-    : b_(s)
+bool Parser::Parse(std::string_view s)
 {
-}
-
-bool Parser::Parse()
-{
-    B b(b_);
+    Utils::Buffer buf(s);
+    B b(buf);
     res_ = b.Parse();
-    error_ = b.HasError() || !b_.Eof();
+    error_ = b.HasError() || !buf.Eof();
     return !error_;
 }
 
@@ -120,7 +116,7 @@ void Parser::Flush(std::ostream& s)
 {
     if (!error_) {
         size_t idx = 0;
-        for (auto& t : res_) {
+        for (const auto& t : res_) {
             s << t;
             if (++idx < res_.size()) {
                 s << " ";

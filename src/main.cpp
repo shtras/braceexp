@@ -3,9 +3,9 @@
 int main()
 {
     std::string in;
-    std::cin >> in;
-    BraceExpand::Parser p(in);
-    p.Parse();
+    std::getline(std::cin, in);
+    BraceExpand::Parser p;
+    p.Parse(in);
     p.Flush(std::cout);
     return 0;
 }

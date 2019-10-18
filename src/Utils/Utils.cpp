@@ -2,7 +2,7 @@
 
 namespace Utils
 {
-Buffer::Buffer(std::string& s)
+Buffer::Buffer(std::string_view s)
     : s_(s)
 {
 }

@@ -6,7 +6,7 @@ namespace Utils
 class Buffer
 {
 public:
-    Buffer(std::string& s);
+    Buffer(std::string_view s);
     char Peek();
     char Get();
     void Skip(size_t n = 1);

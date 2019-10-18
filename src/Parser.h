@@ -57,12 +57,10 @@ private:
 class Parser
 {
 public:
-    Parser(std::string& s);
-    bool Parse();
+    bool Parse(std::string_view s);
     void Flush(std::ostream& s);
 
 private:
-    Utils::Buffer b_;
     std::list<std::string> res_;
     bool error_ = false;
 };

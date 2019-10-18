@@ -28,4 +28,5 @@ echo "A{B,C}" | ../bin/braceexp
 ```
 cd run
 ../bin/unit_tests
+../tests/test.sh
 ```
