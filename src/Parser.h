@@ -7,9 +7,14 @@
 #include "Utils/Utils.h"
 
 /*
-L: [a-zA-Z]|{A}
-A: B,B,B
-B: LLL          --- multiply
+Grammar:
+L: A+
+A: [a-zA-Z]+|{B}
+B: L(,L)*
+
+ExprToken: MultToken+ // multiply those
+MultToken: [a-zA-Z]|{ListToken}
+ListToken: ExprToken,ExprToken,ExprToken,...
 */
 namespace BraceExpand
 {
@@ -25,30 +30,30 @@ protected:
     bool error_ = false;
 };
 
-class L : public Token
+class MultToken : public Token
 {
 public:
-    L(Utils::Buffer& b);
+    MultToken(Utils::Buffer& b);
 
     std::list<std::string> Parse();
 
 private:
 };
 
-class B : public Token
+class ExprToken : public Token
 {
 public:
-    B(Utils::Buffer& b);
+    ExprToken(Utils::Buffer& b);
 
     std::list<std::string> Parse();
 
 private:
 };
 
-class A : public Token
+class ListToken : public Token
 {
 public:
-    A(Utils::Buffer& b);
+    ListToken(Utils::Buffer& b);
 
     std::list<std::string> Parse();
 

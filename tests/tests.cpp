@@ -90,36 +90,36 @@ TEST_CASE("Expanding invalid strings", "[main]")
     {
         REQUIRE_FALSE(p.Parse("}ABC"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
     SECTION("{ABC")
     {
         REQUIRE_FALSE(p.Parse("{ABC"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
     SECTION("}{")
     {
         REQUIRE_FALSE(p.Parse("}{"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
     SECTION("{}")
     {
         REQUIRE_FALSE(p.Parse("{}"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
     SECTION("A,B,C")
     {
         REQUIRE_FALSE(p.Parse("A,B,C"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
     SECTION("{A,}")
     {
         REQUIRE_FALSE(p.Parse("{A,}"));
         p.Flush(ss);
-        REQUIRE(ss.str() == "\n");
+        REQUIRE(ss.str() == "");
     }
 }

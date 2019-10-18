@@ -14,22 +14,22 @@ bool Token::HasError()
     return error_;
 }
 
-L::L(Utils::Buffer& b)
+MultToken::MultToken(Utils::Buffer& b)
     : Token(b)
 {
 }
 
-std::list<std::string> L::Parse()
+std::list<std::string> MultToken::Parse()
 {
     std::list<std::string> res;
     while (!b_.Eof()) {
         if (b_.Peek() == '{' && res.empty()) {
             b_.Skip();
-            A a(b_);
+            ListToken listToken(b_);
             auto pos = b_.Pos();
-            auto alist = a.Parse();
+            auto alist = listToken.Parse();
             res.insert(res.begin(), alist.begin(), alist.end());
-            if (a.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
+            if (listToken.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
                 error_ = true;
             }
             b_.Skip();
@@ -46,18 +46,18 @@ std::list<std::string> L::Parse()
     return res;
 }
 
-B::B(Utils::Buffer& b)
+ExprToken::ExprToken(Utils::Buffer& b)
     : Token(b)
 {
 }
 
-std::list<std::string> B::Parse()
+std::list<std::string> ExprToken::Parse()
 {
     std::list<std::string> res;
     while (!b_.Eof()) {
-        L l(b_);
-        auto right = l.Parse();
-        if (l.HasError()) {
+        MultToken multToken(b_);
+        auto right = multToken.Parse();
+        if (multToken.HasError()) {
             error_ = true;
         }
         if (right.empty()) {
@@ -78,20 +78,20 @@ std::list<std::string> B::Parse()
     return res;
 }
 
-A::A(Utils::Buffer& b)
+ListToken::ListToken(Utils::Buffer& b)
     : Token(b)
 {
 }
 
-std::list<std::string> A::Parse()
+std::list<std::string> ListToken::Parse()
 {
     std::list<std::string> res;
     size_t pos = 0;
     while (!b_.Eof()) {
-        B b(b_);
-        auto blist = b.Parse();
+        ExprToken expToken(b_);
+        auto blist = expToken.Parse();
         res.insert(res.end(), blist.begin(), blist.end());
-        if (b.HasError()) {
+        if (expToken.HasError()) {
             error_ = true;
         }
         if (b_.Peek() != ',') {
@@ -109,9 +109,9 @@ std::list<std::string> A::Parse()
 bool Parser::Parse(std::string_view s)
 {
     Utils::Buffer buf(s);
-    B b(buf);
-    res_ = b.Parse();
-    error_ = b.HasError() || !buf.Eof();
+    ExprToken expression(buf);
+    res_ = expression.Parse();
+    error_ = expression.HasError() || !buf.Eof();
     return !error_;
 }
 
@@ -125,7 +125,7 @@ void Parser::Flush(std::ostream& s)
                 s << " ";
             }
         }
+        s << "\n";
     }
-    s << "\n";
 }
 } // namespace BraceExpand
