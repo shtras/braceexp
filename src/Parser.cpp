@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Parser.h"
 
 bool isChar(char c)
@@ -65,12 +66,13 @@ std::list<std::string> L::Parse()
 {
     std::list<std::string> res;
     while (!b_.Eof()) {
-        if (b_.Peek() == '{') {
+        if (b_.Peek() == '{' && res.empty()) {
             b_.Skip();
-            A l(b_);
+            A a(b_);
             auto pos = b_.Pos();
-            l.Parse();
-            if (l.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
+            auto alist = a.Parse();
+            res.insert(res.begin(), alist.begin(), alist.end());
+            if (a.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
                 error_ = true;
             }
             b_.Skip();
@@ -91,23 +93,31 @@ B::B(Buffer& b)
 {
 }
 
-void B::Parse()
+std::list<std::string> B::Parse()
 {
     std::list<std::string> res;
     while (!b_.Eof()) {
-        L b(b_);
-        auto l = b.Parse();
-        if (b.HasError()) {
+        L l(b_);
+        auto right = l.Parse();
+        if (l.HasError()) {
             error_ = true;
         }
-        res.insert(res.end(), l.begin(), l.end());
-        if (l.empty()) {
+        if (right.empty()) {
             break;
         }
+        std::list<std::string> res1;
+        if (!res.empty()) {
+            for (auto& ls : res) {
+                for (auto& rs : right) {
+                    res1.push_back(ls + rs);
+                }
+            }
+            std::swap(res, res1);
+        } else {
+            std::swap(res, right);
+        }
     }
-    if (res.empty()) {
-        //error_ = true;
-    }
+    return res;
 }
 
 A::A(Buffer& b)
@@ -115,13 +125,15 @@ A::A(Buffer& b)
 {
 }
 
-void A::Parse()
+std::list<std::string> A::Parse()
 {
+    std::list<std::string> res;
     size_t pos = 0;
     while (!b_.Eof()) {
-        B a(b_);
-        a.Parse();
-        if (a.HasError()) {
+        B b(b_);
+        auto blist = b.Parse();
+        res.insert(res.end(), blist.begin(), blist.end());
+        if (b.HasError()) {
             error_ = true;
         }
         if (b_.Peek() != ',') {
@@ -133,6 +145,7 @@ void A::Parse()
         b_.Skip();
         pos = b_.Pos();
     }
+    return res;
 }
 
 Parser::Parser(std::string& s)
@@ -142,15 +155,22 @@ Parser::Parser(std::string& s)
 
 bool Parser::Parse()
 {
-    L l(b_);
-    l.Parse();
+    B l(b_);
+    auto res = l.Parse();
     bool error = l.HasError() || !b_.Eof();
+    if (!error) {
+        for (auto& s : res) {
+            std::cout << s << " ";
+        }
+        std::cout << "\n";
+    }
     return !error;
 }
 
-void test3()
+bool test3()
 {
-    std::string s{"{A}"};
+    std::string s{"B{C,D}"};
     Parser p(s);
     bool res = p.Parse();
+    return res;
 }

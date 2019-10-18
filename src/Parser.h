@@ -52,7 +52,7 @@ class B : public Token
 public:
     B(Buffer& b);
 
-    void Parse();
+    std::list<std::string> Parse();
 
 private:
 };
@@ -62,7 +62,7 @@ class A : public Token
 public:
     A(Buffer& b);
 
-    void Parse();
+    std::list<std::string> Parse();
 
 private:
 };
@@ -77,4 +77,4 @@ private:
     Buffer b_;
 };
 
-void test3();
+bool test3();
