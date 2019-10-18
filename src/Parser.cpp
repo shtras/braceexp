@@ -1,5 +1,7 @@
 #include "Parser.h"
 
+#include <cctype>
+
 namespace BraceExpand
 {
 Token::Token(Utils::Buffer& b)
