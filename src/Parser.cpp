@@ -14,36 +14,39 @@ bool Token::HasError()
     return error_;
 }
 
+std::list<std::string>& Token::GetParts()
+{
+    return parts_;
+}
+
 MultToken::MultToken(Utils::Buffer& b)
     : Token(b)
 {
 }
 
-std::list<std::string> MultToken::Parse()
+void MultToken::Parse()
 {
-    std::list<std::string> res;
     while (!b_.Eof()) {
-        if (b_.Peek() == '{' && res.empty()) {
+        if (b_.Peek() == '{' && parts_.empty()) {
             b_.Skip();
             ListToken listToken(b_);
             auto pos = b_.Pos();
-            auto alist = listToken.Parse();
-            res.insert(res.begin(), alist.begin(), alist.end());
+            listToken.Parse();
+            std::swap(parts_, listToken.GetParts());
             if (listToken.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
                 error_ = true;
             }
             b_.Skip();
             break;
         } else if (std::isalpha(b_.Peek())) {
-            if (res.size() == 0) {
-                res.emplace_back();
+            if (parts_.empty()) {
+                parts_.emplace_back();
             }
-            res.back() += b_.Get();
+            parts_.back() += b_.Get();
         } else {
             break;
         }
     }
-    return res;
 }
 
 ExprToken::ExprToken(Utils::Buffer& b)
@@ -51,31 +54,30 @@ ExprToken::ExprToken(Utils::Buffer& b)
 {
 }
 
-std::list<std::string> ExprToken::Parse()
+void ExprToken::Parse()
 {
-    std::list<std::string> res;
     while (!b_.Eof()) {
         MultToken multToken(b_);
-        auto right = multToken.Parse();
+        multToken.Parse();
         if (multToken.HasError()) {
             error_ = true;
         }
+        auto& right = multToken.GetParts();
         if (right.empty()) {
             break;
         }
-        std::list<std::string> res1;
-        if (!res.empty()) {
-            for (const auto& ls : res) {
+        std::list<std::string> newParts;
+        if (!parts_.empty()) {
+            for (const auto& ls : parts_) {
                 for (const auto& rs : right) {
-                    res1.push_back(ls + rs);
+                    newParts.push_back(ls + rs);
                 }
             }
-            std::swap(res, res1);
+            std::swap(parts_, newParts);
         } else {
-            std::swap(res, right);
+            std::swap(parts_, right);
         }
     }
-    return res;
 }
 
 ListToken::ListToken(Utils::Buffer& b)
@@ -83,14 +85,14 @@ ListToken::ListToken(Utils::Buffer& b)
 {
 }
 
-std::list<std::string> ListToken::Parse()
+void ListToken::Parse()
 {
-    std::list<std::string> res;
     size_t pos = 0;
     while (!b_.Eof()) {
         ExprToken expToken(b_);
-        auto blist = expToken.Parse();
-        res.insert(res.end(), blist.begin(), blist.end());
+        expToken.Parse();
+        auto& nextList = expToken.GetParts();
+        parts_.splice(parts_.end(), nextList);
         if (expToken.HasError()) {
             error_ = true;
         }
@@ -103,14 +105,14 @@ std::list<std::string> ListToken::Parse()
         b_.Skip();
         pos = b_.Pos();
     }
-    return res;
 }
 
 bool Parser::Parse(std::string_view s)
 {
     Utils::Buffer buf(s);
     ExprToken expression(buf);
-    res_ = expression.Parse();
+    expression.Parse();
+    std::swap(res_, expression.GetParts());
     error_ = expression.HasError() || !buf.Eof();
     return !error_;
 }
