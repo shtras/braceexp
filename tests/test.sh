@@ -1,7 +1,18 @@
 #!/bin/bash
+
+BINARY=../bin/braceexp
+if [[ ! -f $BINARY ]] ; then
+	BINARY=../bin/Debug/braceexp.exe
+fi
+
+if [[ ! -f $BINARY ]] ; then
+	echo "Binary not found"
+	exit 1
+fi
+
 function run_test()
 {
-	diff <(echo "$1" | ../bin/braceexp) <(echo ${@:2})
+	diff -w -B <(echo "$1" | $BINARY) <(echo ${@:2})
 	if [[ $? != 0 ]] ; then
 		echo "Results mismatch with $1"
 		exit 1
