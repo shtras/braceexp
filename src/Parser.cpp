@@ -9,11 +9,6 @@ Token::Token(Utils::Buffer& b)
 {
 }
 
-bool Token::HasError()
-{
-    return error_;
-}
-
 std::list<std::string>& Token::GetParts()
 {
     return parts_;
@@ -24,17 +19,17 @@ MultToken::MultToken(Utils::Buffer& b)
 {
 }
 
-void MultToken::Parse()
+bool MultToken::Parse()
 {
     while (!b_.Eof()) {
         if (b_.Peek() == '{' && parts_.empty()) {
             b_.Skip();
             ListToken listToken(b_);
             auto pos = b_.Pos();
-            listToken.Parse();
+            bool res = listToken.Parse();
             std::swap(parts_, listToken.GetParts());
-            if (listToken.HasError() || b_.Peek() != '}' || b_.Pos() == pos) {
-                error_ = true;
+            if (!res || b_.Peek() != '}' || b_.Pos() == pos) {
+                return false;
             }
             b_.Skip();
             break;
@@ -47,6 +42,7 @@ void MultToken::Parse()
             break;
         }
     }
+    return true;
 }
 
 ExprToken::ExprToken(Utils::Buffer& b)
@@ -54,13 +50,13 @@ ExprToken::ExprToken(Utils::Buffer& b)
 {
 }
 
-void ExprToken::Parse()
+bool ExprToken::Parse()
 {
     while (!b_.Eof()) {
         MultToken multToken(b_);
-        multToken.Parse();
-        if (multToken.HasError()) {
-            error_ = true;
+        bool res = multToken.Parse();
+        if (!res) {
+            return false;
         }
         auto& right = multToken.GetParts();
         if (right.empty()) {
@@ -78,6 +74,7 @@ void ExprToken::Parse()
             std::swap(parts_, right);
         }
     }
+    return true;
 }
 
 ListToken::ListToken(Utils::Buffer& b)
@@ -85,41 +82,42 @@ ListToken::ListToken(Utils::Buffer& b)
 {
 }
 
-void ListToken::Parse()
+bool ListToken::Parse()
 {
     size_t pos = 0;
     while (!b_.Eof()) {
         ExprToken expToken(b_);
-        expToken.Parse();
+        bool res = expToken.Parse();
+        if (!res) {
+            return false;
+        }
         auto& nextList = expToken.GetParts();
         parts_.splice(parts_.end(), nextList);
-        if (expToken.HasError()) {
-            error_ = true;
-        }
         if (b_.Peek() != ',') {
             if (pos == b_.Pos()) {
-                error_ = true;
+                return false;
             }
             break;
         }
         b_.Skip();
         pos = b_.Pos();
     }
+    return true;
 }
 
 bool Parser::Parse(std::string_view s)
 {
     Utils::Buffer buf(s);
     ExprToken expression(buf);
-    expression.Parse();
+    bool res = expression.Parse();
     std::swap(res_, expression.GetParts());
-    error_ = expression.HasError() || !buf.Eof();
-    return !error_;
+    success_ = res && buf.Eof();
+    return success_;
 }
 
 void Parser::Flush(std::ostream& s)
 {
-    if (!error_) {
+    if (success_) {
         size_t idx = 0;
         for (const auto& t : res_) {
             s << t;

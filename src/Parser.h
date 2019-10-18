@@ -23,12 +23,10 @@ class Token
 public:
     Token(Utils::Buffer& b);
     virtual ~Token() = default;
-    bool HasError();
     std::list<std::string>& GetParts();
 
 protected:
     Utils::Buffer& b_;
-    bool error_ = false;
     std::list<std::string> parts_;
 };
 
@@ -37,7 +35,7 @@ class MultToken : public Token
 public:
     MultToken(Utils::Buffer& b);
 
-    void Parse();
+    bool Parse();
 
 private:
 };
@@ -47,7 +45,7 @@ class ExprToken : public Token
 public:
     ExprToken(Utils::Buffer& b);
 
-    void Parse();
+    bool Parse();
 
 private:
 };
@@ -57,7 +55,7 @@ class ListToken : public Token
 public:
     ListToken(Utils::Buffer& b);
 
-    void Parse();
+    bool Parse();
 
 private:
 };
@@ -70,6 +68,6 @@ public:
 
 private:
     std::list<std::string> res_;
-    bool error_ = false;
+    bool success_ = false;
 };
 } // namespace BraceExpand

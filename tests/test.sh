@@ -1,14 +1,13 @@
 #!/bin/bash
 
-BINARY=../bin/braceexp
-if [[ ! -f $BINARY ]] ; then
-	BINARY=../bin/Debug/braceexp.exe
-fi
+BINARY=$(find .. \( -name braceexp -o -name braceexp.exe \) 2> /dev/null)
 
 if [[ ! -f $BINARY ]] ; then
 	echo "Binary not found"
 	exit 1
 fi
+
+let n=0
 
 function run_test()
 {
@@ -17,6 +16,7 @@ function run_test()
 		echo "Results mismatch with $1"
 		exit 1
 	fi
+	let n=n+1
 }
 
 run_test "A{B,C}" A{B,C}
@@ -39,3 +39,5 @@ run_test "{}"
 run_test "A,B,C"
 run_test "{A,}"
 run_test "A B"
+
+echo "$n tests succeeded"
