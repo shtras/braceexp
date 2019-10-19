@@ -26,6 +26,9 @@ TEST_CASE("Parsing invalid strings", "[parser]")
     SECTION("A,B,C") { REQUIRE_FALSE(p.Parse("A,B,C")); }
     SECTION("{A,}") { REQUIRE_FALSE(p.Parse("{A,}")); }
     SECTION("A B") { REQUIRE_FALSE(p.Parse("A B")); }
+    SECTION(" AB") { REQUIRE_FALSE(p.Parse(" AB")); }
+    SECTION("AB ") { REQUIRE_FALSE(p.Parse("AB ")); }
+    SECTION("{A,B{C,D}") { REQUIRE_FALSE(p.Parse("{A,B{C,D}")); }
 }
 
 TEST_CASE("Expanding valid strings", "[main]")

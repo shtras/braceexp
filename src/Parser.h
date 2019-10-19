@@ -27,7 +27,7 @@ public:
 
 protected:
     Utils::Buffer& b_;
-    std::list<std::string> parts_;
+    std::list<std::string> parts_{};
 };
 
 class MultToken : public Token
@@ -64,10 +64,9 @@ class Parser
 {
 public:
     bool Parse(std::string_view s);
-    void Flush(std::ostream& s);
+    void Flush(std::ostream& s) const;
 
 private:
-    std::list<std::string> res_;
-    bool success_ = false;
+    std::list<std::string> res_{};
 };
 } // namespace BraceExpand

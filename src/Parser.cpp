@@ -1,6 +1,6 @@
-#include "Parser.h"
-
 #include <cctype>
+
+#include "Parser.h"
 
 namespace BraceExpand
 {
@@ -63,15 +63,15 @@ bool ExprToken::Parse()
             break;
         }
         std::list<std::string> newParts;
-        if (!parts_.empty()) {
+        if (parts_.empty()) {
+            std::swap(parts_, right);
+        } else {
             for (const auto& ls : parts_) {
                 for (const auto& rs : right) {
                     newParts.push_back(ls + rs);
                 }
             }
             std::swap(parts_, newParts);
-        } else {
-            std::swap(parts_, right);
         }
     }
     return true;
@@ -110,21 +110,23 @@ bool Parser::Parse(std::string_view s)
     Utils::Buffer buf(s);
     ExprToken expression(buf);
     bool res = expression.Parse();
-    std::swap(res_, expression.GetParts());
-    success_ = res && buf.Eof();
-    return success_;
+    res &= buf.Eof();
+    if (res) {
+        std::swap(res_, expression.GetParts());
+    }
+    return res;
 }
 
-void Parser::Flush(std::ostream& s)
+void Parser::Flush(std::ostream& s) const
 {
-    if (success_) {
-        size_t idx = 0;
-        for (const auto& t : res_) {
-            s << t;
-            if (++idx < res_.size()) {
-                s << " ";
-            }
+    size_t idx = 0;
+    for (const auto& t : res_) {
+        s << t;
+        if (++idx < res_.size()) {
+            s << " ";
         }
+    }
+    if (!res_.empty()) {
         s << "\n";
     }
 }
